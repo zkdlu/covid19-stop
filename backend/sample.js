@@ -51,6 +51,37 @@ const sample2 = "</p><p>" + "\n" +
 "□ 조치사항</p><p>" + "\n" +
 "- 역학조사 결과 : 접촉자 1명(가족 1명), 검사진행 중 1명</p>";
 
+const sample3 = "</p><p>" + "\n" +
+"○ 10.3.(토)</p><p>" + "\n" +
+"- 00:00-07:00 | 자택 | 접촉자 1명 (동거가족)</p><p>" + "\n" +
+"- 07:00-09:30 | 자택→중랑천 | 도보 이용, 마스크 착용</p><p>" + "\n" +
+"- 09:30-10:00 | 중랑천→자택 | 도보 이용, 마스크 착용</p><p>" + "\n" +
+"</p><p>" + "\n" +
+"○ 10.4.(일)</p><p>" + "\n" +
+"- 07:00-09:30 | 자택→중랑천 | 도보 이용, 마스크 착용</p><p>" + "\n" +
+"- 09:30-10:00 | 중랑천→자택 | 도보 이용, 마스크 착용</p><p>" + "\n" +
+"</p><p>" + "\n" +
+"○ 10.5.(월)</p><p>" + "\n" +
+"- 07:00-09:30 | 자택→중랑천 | 도보 이용, 마스크 착용</p><p>" + "\n" +
+"- 09:30-10:00 | 중랑천→자택 | 도보 이용, 마스크 착용</p><p>" + "\n" +
+"- 10:00-14:25 | 자택</p><p>" + "\n" +
+"- 14:25-14:34 | 자택→의원 | 도보 이용, 마스크 착용</p><p>" + "\n" +
+"- 14:34-15:25 | 의원(방학동) | 마스크 착용, 접촉자 없음</p><p>" + "\n" +
+"- 15:25-15:29 | 의원→약국 | 도보 이용, 마스크 착용</p><p>" + "\n" +
+"- 15:29-15:38 | 약국(방학동) | 마스크 착용, 접촉자 없음</p><p>" + "\n" +
+"- 15:38-15:45 | 약국→자택 | 도보 이용, 마스크 착용</p><p>" + "\n" +
+"</p><p>" + "\n" +
+"○ 10.6.(화)</p><p>" + "\n" +
+"- 15:15-15:30 | 자택→도봉구보건소 | 도보 이용, 마스크 착용</p><p>" + "\n" +
+"- 15:30-16:00 | 도봉구보건소 | 선별진료소 검체 채취</p><p>" + "\n" +
+"- 16:00-16:15 | 도봉구보건소→자택 | 도보 이용, 마스크 착용</p><p>" + "\n" +
+"</p><p>" + "\n" +
+"○ 10.7.(수)</p><p>" + "\n" +
+"- 확진 판정 후 서울의료원 이송</p><p>" + "\n" +
+"</p><p>" + "\n" +
+"□ 조치사항</p><p>" + "\n" +
+"- 역학조사 결과 : 접촉자 1명(가족 1명), 검사진행중 1명</p>";
+
 const removeTag = (str) => {
     return str.replace(/<p>/gi, '')
                 .replace(/<\/p>/gi, '')
@@ -64,26 +95,82 @@ const splitDate = (str) => {
 
     const regex = /\((.?)\)/;
     let elems = str.split('\n');
+
+    let prevElem = elems[0];
+
     for (const elem of elems) {
         let result = elem.match(regex);
         if (result) {
             if (inner.length !== 0) {
                 array.push({
-                    "data": elem,
+                    "date": prevElem,
                     "move": inner
                 });
 
                 inner = Array();
             }
+
+            prevElem = elem;
         } else {
-            inner.push(elem);
+            if (elem) {
+                inner.push(elem);
+            }
         }
     }
 
     return array;
 }
 
-let str = removeTag(sample1);
-let array = splitDate(str);
+const connectMove = (moveData) => {
+    let array = Array();
+    const length = moveData.length;
 
-console.log(array);
+    for (let i = 0; i < length; i++) {
+        const data = moveData[i];
+        const move = data.move;
+
+        let path = Array();
+        let pathIndex = 0;
+        let detail = false;
+
+        const moveLength = move.length;
+        for (let j = 0; j < moveLength; j++) {
+            let step = move[j];
+            let byStep = step.split('|');
+
+            let time = byStep[0];
+            let moving = byStep[1];
+
+            console.log(step);
+            let movingDirection = moving.split('→');
+            if (movingDirection.length === 2) {
+                let to = movingDirection[1];
+                let from = movingDirection[0];
+
+                if (detail !== true) {
+                    path[pathIndex] = from;
+                }
+                path[pathIndex + 1] = to;
+
+                pathIndex++;
+                detail = false;
+            } else {
+                path[pathIndex] = moving;
+                detail = true;
+            }
+        }
+
+        array.push({
+            'date': data.date,
+            'path': path
+        });
+    }
+
+    return array;
+}
+
+let str = removeTag(sample2);
+let moveData = splitDate(str);
+let result = connectMove(moveData);
+
+console.log(result);

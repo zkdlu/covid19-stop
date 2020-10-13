@@ -50,36 +50,39 @@
           centerY -= size;
       }
 
-      for (let diamond of diamonds) {
-          const x = diamond.centerX;
-          const y = diamond.centerY;
-          const size = diamond.size;
+    //   for (let diamond of diamonds) {
+    //       const x = diamond.centerX;
+    //       const y = diamond.centerY;
+    //       const size = diamond.size;
 
-          let top = new google.maps.LatLng(y - size, x);
-          let left = new google.maps.LatLng(y, x - size);
-          let right = new google.maps.LatLng(y, x + size);
-          let bottom = new google.maps.LatLng(y + size, x);
+    //       let top = new google.maps.LatLng(y - size, x);
+    //       let left = new google.maps.LatLng(y, x - size);
+    //       let right = new google.maps.LatLng(y, x + size);
+    //       let bottom = new google.maps.LatLng(y + size, x);
 
-          let polygonPath = [top, left, bottom, right, top];
-          let polygon = new google.maps.Polygon({
-                  path:polygonPath,
-                  strokeColor:"#0000FF",
-                  strokeOpacity:0.8,
-                  strokeWeight:2
-          });
+    //       let polygonPath = [top, left, bottom, right, top];
+    //       let polygon = new google.maps.Polygon({
+    //               path:polygonPath,
+    //               strokeColor:"#0000FF",
+    //               strokeOpacity:0.8,
+    //               strokeWeight:2
+    //       });
 
-          polygon.setMap(map);
+    //       polygon.setMap(map);
 
-          google.maps.event.addListener(polygon,'click',function(event) {
-              let clickY = event.latLng.lat();
-              let clickX = event.latLng.lng();
+    //       google.maps.event.addListener(polygon,'click',function(event) {
+    //           let clickY = event.latLng.lat();
+    //           let clickX = event.latLng.lng();
 
-              checkCell(map, clickX, clickY);
-           });
-      }
+    //           checkCell(map, clickX, clickY);
+    //        });
+    //   }
 
       google.maps.event.addListener(map,'click',function(event) {
-          console.log(event.latLng);
+            let clickY = event.latLng.lat();
+            let clickX = event.latLng.lng();
+
+            checkCell(map, clickX, clickY);
       });
   }
 
